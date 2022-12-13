@@ -8,7 +8,7 @@
 
 inline constexpr const char* command_clean_git = "git clean -xdf";
 inline constexpr const char* command_clean_sln = R"q(
-FOR /d /r . %%d IN ("ipch") DO @IF EXIST "%%d" rd /s /q "%%d"
+::FOR /d /r . %%d IN ("ipch") DO @IF EXIST "%%d" rd /s /q "%%d"
 del /s /q *.obj
 del /s /q *.o
 del /s /q *.pdb
@@ -27,16 +27,19 @@ void clean_git_repository(const std::filesystem::path& root)
 	std::cout << "Found git repository at " << root << "\n";
 	std::filesystem::current_path(root);
 	system(command_clean_git);
+	std::cout << std::endl;
 	}
 void clean_sln(const std::filesystem::path& root)
 	{
 	std::cout << "Found Visual Studio Solution at " << root << "\n";
 	std::filesystem::current_path(root);
 	system(command_clean_sln);
+	std::cout << std::endl;
 	}
 
 void clean_all(const std::filesystem::path& root)
 	{
+	std::cout << "Checking " << root << std::endl;
 	for (const auto& entry : std::filesystem::directory_iterator{root})
 		{
 		auto path{entry.path()};
@@ -56,8 +59,7 @@ void clean_all(const std::filesystem::path& root)
 	for (const auto& entry : std::filesystem::directory_iterator{root})
 		{
 		auto path{entry.path()};
-
-		clean_all(path);
+		if (std::filesystem::is_directory(path)) { clean_all(path); }
 		}
 	}
 
